@@ -60,3 +60,24 @@ ON CONFLICT DO NOTHING;
 ALTER TABLE propiedades ENABLE ROW LEVEL SECURITY;
 ALTER TABLE aliados ENABLE ROW LEVEL SECURITY;
 ALTER TABLE registro_leads ENABLE ROW LEVEL SECURITY;
+
+-- =============================================
+-- MIGRACIÓN: Panel Admin (2026-06-22)
+-- =============================================
+ALTER TABLE propiedades ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
+ALTER TABLE propiedades ADD COLUMN IF NOT EXISTS emergency_contact TEXT NOT NULL DEFAULT '';
+ALTER TABLE propiedades ADD COLUMN IF NOT EXISTS welcome_message TEXT NOT NULL DEFAULT '';
+
+ALTER TABLE aliados ADD COLUMN IF NOT EXISTS website_url TEXT DEFAULT '';
+ALTER TABLE aliados ADD COLUMN IF NOT EXISTS commission_type TEXT DEFAULT 'fixed';
+ALTER TABLE aliados ADD COLUMN IF NOT EXISTS commission_value NUMERIC DEFAULT 0;
+ALTER TABLE aliados ADD COLUMN IF NOT EXISTS promotion TEXT DEFAULT '';
+ALTER TABLE aliados ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
+
+ALTER TABLE registro_leads ADD COLUMN IF NOT EXISTS click_type TEXT DEFAULT 'whatsapp';
+
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL DEFAULT 'host',
+  propiedad_id TEXT REFERENCES propiedades(id)
+);
