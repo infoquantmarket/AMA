@@ -1,6 +1,6 @@
 import { openai } from '@ai-sdk/openai'
 import { streamText, UIMessage, convertToModelMessages } from 'ai'
-import { supabaseAdmin, type Aliado, type Propiedad } from '@/lib/supabase'
+import { getSupabaseAdmin, type Aliado, type Propiedad } from '@/lib/supabase'
 
 export const runtime = 'nodejs'
 
@@ -10,6 +10,8 @@ export async function POST(req: Request) {
   if (!propertyId) {
     return new Response('Falta el parámetro propertyId', { status: 400 })
   }
+
+  const supabaseAdmin = getSupabaseAdmin()
 
   // 1. Consultar la propiedad
   const { data: propiedad, error: propError } = await supabaseAdmin

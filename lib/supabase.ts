@@ -1,12 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Cliente con service role para uso exclusivo en el servidor (Route Handlers)
-// NUNCA exponer SUPABASE_SERVICE_ROLE_KEY en el cliente
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export type Propiedad = {
   id: string
   host_name: string
@@ -24,4 +17,13 @@ export type Aliado = {
   business_name: string
   ai_description: string
   whatsapp_number: string
+}
+
+// Lazy: el cliente se crea solo cuando se llama, no al importar el módulo
+// Esto evita el error "supabaseUrl is required" en build time
+export function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 }
