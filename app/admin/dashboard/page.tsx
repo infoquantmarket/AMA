@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getSupabaseAdmin, type Profile, type Lead } from '@/lib/supabase'
-import { TrendingUp, Building2, Users, DollarSign } from 'lucide-react'
+import { TrendingUp, Building2, Users, DollarSign, ShieldCheck } from 'lucide-react'
+import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient()
@@ -83,7 +84,13 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-xl font-semibold text-white">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-white">Dashboard</h1>
+        <Link href="/admin/usuarios" className="flex items-center gap-2 border border-white/10 text-gray-300 hover:text-white hover:border-white/30 text-sm px-4 py-2 rounded-lg transition-colors">
+          <ShieldCheck className="w-4 h-4" />
+          Gestionar usuarios
+        </Link>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map(({ label, value, icon: Icon, color, bg, trend: t }) => (
