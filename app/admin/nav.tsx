@@ -58,7 +58,7 @@ export default function AdminNav({ role, propiedadId }: Props) {
       )}
 
       <aside className="hidden lg:flex flex-col w-56 bg-[#1a1f2e] border-r border-white/10 min-h-screen p-4">
-        <div className="mb-8 flex justify-center">
+        <div className="pb-6 mb-6 border-b border-white/10 flex justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/AMAlogo_nb.png" alt="AMA" className="w-full max-w-[180px] object-contain" style={{ filter: 'brightness(0) invert(1)' }} />
         </div>

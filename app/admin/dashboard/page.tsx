@@ -14,17 +14,37 @@ export default async function DashboardPage() {
 
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
 
-  const { data: leads } = await admin
-    .from('registro_leads')
-    .select('*, propiedades(host_name, city), aliados(business_name, commission_type, commission_value)')
-    .gte('created_at', startOfMonth)
-    .order('created_at', { ascending: false })
-    .returns<Lead[]>()
+  const [{ data: leads }, { data: leadsLastMonth }] = await Promise.all([
+    admin
+      .from('registro_leads')
+      .select('*, propiedades(host_name, city), aliados(business_name, commission_type, commission_value)')
+      .gte('created_at', startOfMonth)
+      .order('created_at', { ascending: false })
+      .returns<Lead[]>(),
+    admin
+      .from('registro_leads')
+      .select('aliados(commission_value)')
+      .gte('created_at', startOfLastMonth)
+      .lt('created_at', startOfMonth)
+      .returns<Lead[]>(),
+  ])
 
   const leadsData = leads ?? []
+  const lastMonthData = leadsLastMonth ?? []
 
   const ingresos = leadsData.reduce((sum, lead) => sum + (lead.aliados?.commission_value ?? 0), 0)
+  const ingresosLastMonth = lastMonthData.reduce((sum, lead) => sum + (lead.aliados?.commission_value ?? 0), 0)
+
+  const clicksThisMonth = leadsData.length
+  const clicksLastMonth = lastMonthData.length
+
+  const trend = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? { label: 'nuevo', up: true } : null
+    const pct = Math.round(((current - previous) / previous) * 100)
+    return { label: `${pct > 0 ? '+' : ''}${pct}% vs mes anterior`, up: pct >= 0 }
+  }
 
   const aliadoCount: Record<string, { name: string; count: number }> = {}
   leadsData.forEach(l => {
@@ -51,11 +71,14 @@ export default async function DashboardPage() {
   const aliadosConClicks = new Set(Object.keys(aliadoCount))
   const aliadosSinClicks = (todosAliados ?? []).filter((a: { id: string; business_name: string }) => !aliadosConClicks.has(a.id))
 
+  const clicksTrend = trend(clicksThisMonth, clicksLastMonth)
+  const ingresosTrend = trend(ingresos, ingresosLastMonth)
+
   const cards = [
-    { label: 'Clicks este mes', value: leadsData.length, icon: TrendingUp, color: 'text-amber-400' },
-    { label: 'Ingresos estimados', value: `$${ingresos.toLocaleString()}`, icon: DollarSign, color: 'text-emerald-400' },
-    { label: 'Propiedad más activa', value: topProp?.name ?? '—', icon: Building2, color: 'text-blue-400' },
-    { label: 'Aliado más clickeado', value: topAliado?.name ?? '—', icon: Users, color: 'text-purple-400' },
+    { label: 'Clicks este mes', value: clicksThisMonth, icon: TrendingUp, color: 'text-amber-400', bg: 'bg-amber-500/10', trend: clicksTrend },
+    { label: 'Ingresos estimados', value: `$${ingresos.toLocaleString()}`, icon: DollarSign, color: 'text-emerald-400', bg: 'bg-emerald-500/10', trend: ingresosTrend },
+    { label: 'Propiedad más activa', value: topProp?.name ?? '—', icon: Building2, color: 'text-blue-400', bg: 'bg-blue-500/10', trend: null },
+    { label: 'Aliado más clickeado', value: topAliado?.name ?? '—', icon: Users, color: 'text-purple-400', bg: 'bg-purple-500/10', trend: null },
   ]
 
   return (
@@ -63,11 +86,18 @@ export default async function DashboardPage() {
       <h1 className="text-xl font-semibold text-white">Dashboard</h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {cards.map(({ label, value, icon: Icon, color }) => (
+        {cards.map(({ label, value, icon: Icon, color, bg, trend: t }) => (
           <div key={label} className="bg-[#1a1f2e] rounded-xl p-4 border border-white/10">
-            <Icon className={`w-5 h-5 ${color} mb-2`} />
+            <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center mb-3`}>
+              <Icon className={`w-4 h-4 ${color}`} />
+            </div>
             <p className="text-gray-400 text-xs">{label}</p>
-            <p className="text-white font-semibold text-sm mt-1 truncate">{String(value)}</p>
+            <p className="text-white font-semibold text-lg mt-1 truncate">{String(value)}</p>
+            {t && (
+              <p className={`text-xs mt-1 ${t.up ? 'text-emerald-400' : 'text-red-400'}`}>
+                {t.up ? '↑' : '↓'} {t.label}
+              </p>
+            )}
           </div>
         ))}
       </div>

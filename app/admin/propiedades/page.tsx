@@ -39,9 +39,13 @@ export default async function PropiedadesPage() {
           <div className="space-y-2">
             {props.map(p => (
               <Link key={p.id} href={`/admin/propiedades/${p.id}`}
-                className="flex items-center justify-between bg-[#1a1f2e] rounded-xl p-4 border border-white/10 hover:border-amber-500/30 transition-colors">
+                className={`flex items-center justify-between bg-[#1a1f2e] rounded-xl p-4 border transition-colors hover:border-amber-500/30
+                  ${p.active ? 'border-white/10' : 'border-red-500/30 opacity-60'}`}>
                 <div>
-                  <p className="text-white text-sm font-medium">{p.host_name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white text-sm font-medium">{p.host_name}</p>
+                    {!p.active && <span className="text-xs text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">inactiva</span>}
+                  </div>
                   <p className="text-gray-500 text-xs mt-0.5">{p.address_zone} · ID: {p.id}</p>
                 </div>
                 <div className="flex items-center gap-3">
