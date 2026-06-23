@@ -34,11 +34,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#0d1117] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-xl font-bold text-black mx-auto mb-3">
-            A
-          </div>
-          <h1 className="text-white text-xl font-semibold">AMA Admin</h1>
-          <p className="text-gray-400 text-sm mt-1">Panel de administración</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/AMAlogo_nb.png" alt="AMA" className="w-48 object-contain mx-auto mb-4" style={{ filter: 'brightness(0) invert(1)' }} />
+          <p className="text-gray-400 text-sm">Panel de administración</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
