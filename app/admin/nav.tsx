@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Building2, Users, BarChart2, LogOut, X, Menu } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, BarChart2, LogOut, X, Menu, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
 
@@ -11,6 +11,7 @@ const adminLinks = [
   { href: '/admin/propiedades', label: 'Propiedades', icon: Building2 },
   { href: '/admin/aliados', label: 'Aliados', icon: Users },
   { href: '/admin/leads', label: 'Leads', icon: BarChart2 },
+  { href: '/admin/usuarios', label: 'Usuarios', icon: ShieldCheck },
 ]
 
 type Props = { role: 'admin' | 'host'; propiedadId?: string | null }
