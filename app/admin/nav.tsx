@@ -35,8 +35,8 @@ export default function AdminNav({ role, propiedadId }: Props) {
     <>
       <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#1a1f2e] border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-xs font-bold text-black">A</div>
-          <span className="text-white text-sm font-semibold">AMA Admin</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/AMAlogo_nb.png" alt="AMA" className="h-7 object-contain" style={{ filter: 'brightness(0) invert(1)' }} />
         </div>
         <button onClick={() => setOpen(!open)} className="text-gray-400">
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -58,9 +58,10 @@ export default function AdminNav({ role, propiedadId }: Props) {
       )}
 
       <aside className="hidden lg:flex flex-col w-56 bg-[#1a1f2e] border-r border-white/10 min-h-screen p-4">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-sm font-bold text-black">A</div>
-          <span className="text-white font-semibold">AMA Admin</span>
+        <div className="mb-8 px-1">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/AMAlogo_nb.png" alt="AMA" className="h-9 object-contain object-left" style={{ filter: 'brightness(0) invert(1)' }} />
+          <p className="text-gray-500 text-xs mt-1 pl-0.5">Virtual VIP Concierge</p>
         </div>
         <nav className="flex-1 space-y-1">
           {links.map(({ href, label, icon: Icon }) => (
