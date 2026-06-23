@@ -24,15 +24,16 @@ export async function GET() {
 
   const merged = (profiles ?? []).map((p: {
     id: string; role: string; propiedad_id: string | null;
-    propiedades: { host_name: string } | null
+    propiedades: { host_name: string }[] | { host_name: string } | null
   }) => {
     const authUser = authUsers.users.find(u => u.id === p.id)
+    const prop = Array.isArray(p.propiedades) ? p.propiedades[0] : p.propiedades
     return {
       id: p.id,
       email: authUser?.email ?? '—',
       role: p.role,
       propiedad_id: p.propiedad_id,
-      propiedad_name: p.propiedades?.host_name ?? null,
+      propiedad_name: prop?.host_name ?? null,
     }
   })
 
