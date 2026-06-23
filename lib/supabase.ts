@@ -8,6 +8,9 @@ export type Propiedad = {
   wifi_network: string
   wifi_password: string
   house_rules: string
+  active: boolean
+  emergency_contact: string
+  welcome_message: string
 }
 
 export type Aliado = {
@@ -17,10 +20,29 @@ export type Aliado = {
   business_name: string
   ai_description: string
   whatsapp_number: string
+  website_url: string
+  commission_type: 'percentage' | 'fixed'
+  commission_value: number
+  promotion: string
+  active: boolean
 }
 
-// Lazy: el cliente se crea solo cuando se llama, no al importar el módulo
-// Esto evita el error "supabaseUrl is required" en build time
+export type Lead = {
+  id: string
+  created_at: string
+  propiedad_id: string
+  aliado_id: string
+  click_type: 'whatsapp' | 'website'
+  propiedades?: { host_name: string; city: string }
+  aliados?: { business_name: string; commission_type: string; commission_value: number }
+}
+
+export type Profile = {
+  id: string
+  role: 'admin' | 'host'
+  propiedad_id: string | null
+}
+
 export function getSupabaseAdmin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
