@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getSupabaseAdmin, type Profile } from '@/lib/supabase'
 import AdminNav from './nav'
@@ -7,7 +6,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/admin/login')
+  if (!user) {
+    return <>{children}</>
+  }
 
   const admin = getSupabaseAdmin()
   const { data: profile } = await admin
@@ -16,7 +17,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .eq('id', user.id)
     .single<Profile>()
 
-  if (!profile) redirect('/admin/login')
+  if (!profile) {
+    return <>{children}</>
+  }
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white lg:flex">
