@@ -21,7 +21,7 @@ export type Aliado = {
   ai_description: string
   whatsapp_number: string
   website_url: string
-  commission_type: 'percentage' | 'fixed'
+  commission_type: 'percentage' | 'fixed' | 'membership'
   commission_value: number
   promotion: string
   active: boolean

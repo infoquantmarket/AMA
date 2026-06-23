@@ -118,10 +118,11 @@ export default function AliadosPage() {
             <div>
               <label className="text-xs text-gray-400 mb-1 block">Tipo de comisión</label>
               <select value={form.commission_type}
-                onChange={e => setForm(p => ({ ...p, commission_type: e.target.value as 'fixed' | 'percentage' }))}
+                onChange={e => setForm(p => ({ ...p, commission_type: e.target.value as 'fixed' | 'percentage' | 'membership' }))}
                 className="w-full bg-[#0d1117] text-white border border-white/10 rounded-lg px-3 py-2 text-sm outline-none">
-                <option value="fixed">Fijo ($)</option>
-                <option value="percentage">Porcentaje (%)</option>
+                <option value="fixed">Por comisión ($)</option>
+                <option value="percentage">Por comisión (%)</option>
+                <option value="membership">Membresía mensual ($)</option>
               </select>
             </div>
             <F label="Valor comisión" field="commission_value" type="number" />
@@ -148,7 +149,13 @@ export default function AliadosPage() {
               </div>
               <p className="text-gray-400 text-xs mt-1 line-clamp-1">{a.ai_description}</p>
               {a.promotion && <p className="text-amber-400 text-xs mt-1">🎁 {a.promotion}</p>}
-              <p className="text-gray-500 text-xs mt-1">Comisión: ${a.commission_value} {a.commission_type === 'percentage' ? '%' : 'fijo'}</p>
+              <p className="text-gray-500 text-xs mt-1">
+                {a.commission_type === 'membership'
+                  ? `Membresía: $${a.commission_value}/mes`
+                  : a.commission_type === 'percentage'
+                  ? `Comisión: ${a.commission_value}%`
+                  : `Comisión: $${a.commission_value}`}
+              </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button onClick={() => startEdit(a)} className="text-gray-400 hover:text-white"><Pencil className="w-4 h-4" /></button>
