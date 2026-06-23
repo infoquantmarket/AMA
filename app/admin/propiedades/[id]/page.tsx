@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getSupabaseAdmin, type Profile, type Propiedad } from '@/lib/supabase'
 import EditForm from './edit-form'
+import QRButton from './qr-button'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -30,7 +31,10 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
           <ArrowLeft className="w-4 h-4" />Volver a propiedades
         </Link>
       )}
-      <h1 className="text-xl font-semibold text-white">{propiedad.host_name}</h1>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h1 className="text-xl font-semibold text-white">{propiedad.host_name}</h1>
+        <QRButton propiedadId={propiedad.id} propiedadName={propiedad.host_name} />
+      </div>
       <EditForm propiedad={propiedad} role={profile?.role ?? 'host'} />
     </div>
   )

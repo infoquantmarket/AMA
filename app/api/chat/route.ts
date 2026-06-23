@@ -23,10 +23,6 @@ export async function POST(req: Request) {
     return new Response('Propiedad no encontrada', { status: 404 })
   }
 
-  if (propiedad.active === false) {
-    return new Response('Esta propiedad no tiene AMA activo actualmente.', { status: 403 })
-  }
-
   const { data: aliados } = await supabaseAdmin
     .from('aliados')
     .select('*')
@@ -36,12 +32,14 @@ export async function POST(req: Request) {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://project-i8q9f.vercel.app'
 
-  const aliadosTexto =
+  const buildAliadosTexto = (includeTracking: boolean) =>
     aliados && aliados.length > 0
       ? aliados.map((a) => {
-          const waLink = `${baseUrl}/api/track?aliado=${a.id}&propiedad=${propertyId}&type=whatsapp`
+          const waLink = includeTracking
+            ? `${baseUrl}/api/track?aliado=${a.id}&propiedad=${propertyId}&type=whatsapp`
+            : `https://wa.me/${a.whatsapp_number}`
           const webLink = a.website_url
-            ? `${baseUrl}/api/track?aliado=${a.id}&propiedad=${propertyId}&type=website`
+            ? (includeTracking ? `${baseUrl}/api/track?aliado=${a.id}&propiedad=${propertyId}&type=website` : a.website_url)
             : null
           const promoTexto = a.promotion ? ` 🎁 PROMOCIÓN EXCLUSIVA AMA: ${a.promotion}` : ''
           const webTexto = webLink ? ` | [Ver sitio web / Reservar](${webLink})` : ''
@@ -49,7 +47,34 @@ export async function POST(req: Request) {
         }).join('\n')
       : 'No hay aliados registrados para esta ciudad aún.'
 
-  const systemPrompt = `Eres AMA, el concierge de lujo de la propiedad "${propiedad.host_name}" ubicada en ${propiedad.city}.
+  // Modo genérico: propiedad inactiva — AMA actúa como concierge de la ciudad sin datos privados
+  if (propiedad.active === false) {
+    const systemPrompt = `Eres AMA (Ask Me Anything), el concierge digital de ${propiedad.city}.
+
+Ayudas a visitantes y turistas a descubrir los mejores servicios, restaurantes, tours y experiencias de ${propiedad.city}.
+
+SERVICIOS DISPONIBLES EN ${propiedad.city.toUpperCase()}:
+${buildAliadosTexto(false)}
+
+====== REGLAS ======
+1. Solo hablas de turismo, gastronomía, transporte y experiencias en ${propiedad.city}.
+2. Si preguntan por información de una propiedad específica, indica que el servicio de concierge privado no está disponible en este momento, pero que puedes ayudar con recomendaciones de la ciudad.
+3. RESPUESTAS CORTAS: usa viñetas (•) y emojis. Máximo 3-4 líneas.
+4. LINKS: incluye siempre el link de WhatsApp del aliado cuando lo recomiendes.
+5. Responde en el idioma del usuario.
+6. Tono: amable, cálido, local experto.`
+
+    const result = streamText({
+      model: openai('gpt-4o-mini'),
+      system: systemPrompt,
+      messages: await convertToModelMessages(messages),
+      maxOutputTokens: 300,
+      temperature: 0.3,
+    })
+    return result.toUIMessageStreamResponse()
+  }
+
+  const systemPrompt = `Eres AMA (Ask Me Anything), el concierge de lujo de la propiedad "${propiedad.host_name}" ubicada en ${propiedad.city}.
 
 INFORMACIÓN DE LA PROPIEDAD:
 - Zona: ${propiedad.address_zone}
@@ -59,7 +84,7 @@ INFORMACIÓN DE LA PROPIEDAD:
 ${propiedad.welcome_message ? `- Mensaje del anfitrión: ${propiedad.welcome_message}` : ''}
 
 ALIADOS DISPONIBLES EN ${propiedad.city.toUpperCase()} (usa SIEMPRE estos links — no inventes otros):
-${aliadosTexto}
+${buildAliadosTexto(true)}
 
 ====== REGLAS CRÍTICAS ======
 
