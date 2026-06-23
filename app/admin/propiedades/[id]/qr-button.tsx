@@ -20,20 +20,9 @@ export default function QRButton({ propiedadId, propiedadName }: { propiedadId: 
     document.fonts.add(font)
     await document.fonts.ready
 
-    const W = 600
-    const H = 760
+    const W = 560
     const canvas = document.createElement('canvas')
-    canvas.width = W
-    canvas.height = H
-    const ctx = canvas.getContext('2d')!
-
-    // Fondo blanco
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, W, H)
-
-    // Franja superior dorada
-    ctx.fillStyle = '#f59e0b'
-    ctx.fillRect(0, 0, W, 8)
+    const ctx_temp = document.createElement('canvas').getContext('2d')!
 
     // Cargar logo y QR en paralelo
     const serializer = new XMLSerializer()
@@ -52,38 +41,77 @@ export default function QRButton({ propiedadId, propiedadName }: { propiedadId: 
       loadImg('/AMAlogo_nb.png'),
     ])
 
-    // Logo grande centrado arriba
-    const logoW = 380
-    const logoH = (logo.naturalHeight / logo.naturalWidth) * logoW
+    // Calcular alturas reales para canvas justo
+    const logoW = 340
+    const logoH = Math.round((logo.naturalHeight / logo.naturalWidth) * logoW)
+    const qrSize = 340
+    const PAD = 32       // padding lateral
+    const GAP_TOP = 28   // espacio sobre logo
+    const GAP_MID = 20   // logo → QR
+    const GAP_BOT = 24   // QR → texto
+    const TEXT_H = 72    // nombre + tagline + padding inferior
+    const H = GAP_TOP + logoH + GAP_MID + qrSize + GAP_BOT + TEXT_H
+
+    canvas.width = W
+    canvas.height = H
+    const ctx = canvas.getContext('2d')!
+    void ctx_temp // silence unused
+
+    // Fondo crema cálido
+    ctx.fillStyle = '#fffdf7'
+    ctx.fillRect(0, 0, W, H)
+
+    // Banda dorada superior
+    const grad = ctx.createLinearGradient(0, 0, W, 0)
+    grad.addColorStop(0, '#f59e0b')
+    grad.addColorStop(1, '#d97706')
+    ctx.fillStyle = grad
+    ctx.fillRect(0, 0, W, 7)
+
+    // Logo centrado
     const logoX = (W - logoW) / 2
-    const logoY = 32
+    const logoY = GAP_TOP
     ctx.drawImage(logo, logoX, logoY, logoW, logoH)
 
-    // QR centrado debajo del logo
-    const qrSize = 360
-    const qrX = (W - qrSize) / 2
-    const qrY = logoY + logoH + 28
-    ctx.drawImage(svgImg, qrX, qrY, qrSize, qrSize)
-
-    // Separador
-    const sepY = qrY + qrSize + 28
-    ctx.strokeStyle = '#e5e7eb'
+    // Línea separadora sutil
+    const line1Y = logoY + logoH + GAP_MID / 2 - 2
+    ctx.strokeStyle = '#f3e8d0'
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(48, sepY)
-    ctx.lineTo(W - 48, sepY)
+    ctx.moveTo(PAD + 40, line1Y)
+    ctx.lineTo(W - PAD - 40, line1Y)
+    ctx.stroke()
+
+    // QR con borde redondeado simulado (rect blanco de fondo)
+    const qrX = (W - qrSize) / 2
+    const qrY = logoY + logoH + GAP_MID
+    ctx.fillStyle = '#ffffff'
+    ctx.beginPath()
+    ctx.roundRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 12)
+    ctx.fill()
+    ctx.drawImage(svgImg, qrX, qrY, qrSize, qrSize)
+
+    // Sombra sutil del QR (dibujada antes — aquí la simulamos con borde)
+    ctx.strokeStyle = '#f0e8d8'
+    ctx.lineWidth = 1.5
     ctx.stroke()
 
     // Nombre de la propiedad — Montserrat Bold
-    ctx.fillStyle = '#111827'
-    ctx.font = 'bold 22px Montserrat, sans-serif'
+    const textY = qrY + qrSize + GAP_BOT
+    ctx.fillStyle = '#1a1a1a'
+    ctx.font = 'bold 20px Montserrat, sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText(propiedadName, W / 2, sepY + 38)
+    ctx.fillText(propiedadName, W / 2, textY + 22)
 
-    // Tagline — Montserrat regular
-    ctx.fillStyle = '#9ca3af'
-    ctx.font = '14px Montserrat, sans-serif'
-    ctx.fillText('Escanea para acceder a tu concierge virtual', W / 2, sepY + 64)
+    // Tagline
+    ctx.fillStyle = '#b08030'
+    ctx.font = '12px Montserrat, sans-serif'
+    ctx.letterSpacing = '1px'
+    ctx.fillText('ASK ME ANYTHING · VIRTUAL VIP CONCIERGE', W / 2, textY + 44)
+
+    // Banda dorada inferior
+    ctx.fillStyle = grad
+    ctx.fillRect(0, H - 5, W, 5)
 
     const link = document.createElement('a')
     link.download = `ama-qr-${propiedadId}.png`
