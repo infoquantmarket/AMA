@@ -60,10 +60,16 @@ export default function EditForm({ propiedad, role }: Props) {
           <Field label="Zona" field="address_zone" />
           <div>
             <label className="text-xs text-gray-400 mb-1 block">Estado</label>
-            <button onClick={() => set('active', !data.active)}
-              className={`text-sm px-4 py-1.5 rounded-full font-medium transition-colors ${data.active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-              {data.active ? '● Activa' : '○ Inactiva'}
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => set('active', true)}
+                className={`text-sm px-4 py-1.5 rounded-lg font-medium transition-colors border ${data.active ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'text-gray-500 border-white/10 hover:border-white/20'}`}>
+                ● Activa
+              </button>
+              <button onClick={() => set('active', false)}
+                className={`text-sm px-4 py-1.5 rounded-lg font-medium transition-colors border ${!data.active ? 'bg-red-500/20 text-red-400 border-red-500/50' : 'text-gray-500 border-white/10 hover:border-white/20'}`}>
+                ○ Inactiva
+              </button>
+            </div>
           </div>
         </section>
       )}
